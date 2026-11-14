@@ -1,0 +1,53 @@
+CREATE DATABASE IF NOT EXISTS ayuniya_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE ayuniya_db;
+
+CREATE TABLE IF NOT EXISTS users (
+    id_user INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    profile_picture VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS moods (
+    id_mood INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    mood VARCHAR(20) NOT NULL,
+    note TEXT NULL,
+    mood_date DATE NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY one_mood_per_day (user_id, mood_date),
+    CONSTRAINT moods_user_fk FOREIGN KEY (user_id) REFERENCES users (id_user) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS journals (
+    id_journal INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT journals_user_fk FOREIGN KEY (user_id) REFERENCES users (id_user) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS goals (
+    id_goal INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    description TEXT NULL,
+    deadline DATE NULL,
+    status ENUM('pending', 'completed') NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT goals_user_fk FOREIGN KEY (user_id) REFERENCES users (id_user) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS songs (
+    id_song INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    artist VARCHAR(150) NOT NULL,
+    album_art VARCHAR(500) NULL,
+    spotify_embed_url VARCHAR(500) NULL,
+    mood_category VARCHAR(20) NOT NULL,
+    vibe_category VARCHAR(20) NOT NULL
+) ENGINE=InnoDB;
