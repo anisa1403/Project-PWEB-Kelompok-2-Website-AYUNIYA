@@ -4,13 +4,14 @@ declare(strict_types=1);
 date_default_timezone_set('Asia/Jakarta');
 
 $databaseHost = '127.0.0.1';
+$databasePort = 3308;
 $databaseName = 'ayuniya_db';
 $databaseUser = 'root';
 $databasePassword = '';
 
 try {
     $pdo = new PDO(
-        "mysql:host={$databaseHost};dbname={$databaseName};charset=utf8mb4",
+        "mysql:host={$databaseHost};port={$databasePort};dbname={$databaseName};charset=utf8mb4",
         $databaseUser,
         $databasePassword,
         [

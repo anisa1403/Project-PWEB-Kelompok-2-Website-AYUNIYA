@@ -27,16 +27,35 @@ const closeNotificationDialog=()=>{appNotification.classList.remove("open");docu
 closeNotification.addEventListener("click",closeNotificationDialog);
 appNotification.addEventListener("click",(event)=>{if(event.target===appNotification)closeNotificationDialog();});
 document.addEventListener("keydown",(event)=>{if(event.key==="Escape"&&appNotification.classList.contains("open"))closeNotificationDialog();});
-const toggleSidebar=()=>{
-    const open=sidebar.classList.toggle("open");
-    appShell.classList.toggle("sidebar-collapsed",!open);
-    sidebarToggle.setAttribute("aria-expanded",String(open));
-    topbarToggle.setAttribute("aria-expanded",String(open));
-    sidebarToggle.setAttribute("aria-label",open ? "Close menu" : "Open menu");
-    topbarToggle.setAttribute("aria-label",open ? "Close menu" : "Open menu");
+const mobileShade = document.getElementById("mobile-shade");
+const isMobileNav = () => window.matchMedia("(max-width:760px)").matches;
+const closeMobileNav = () => {
+    sidebar.classList.remove("mobile-visible");
+    mobileShade.classList.remove("visible");
+    topbarToggle.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("mobile-nav-open");
+};
+const toggleSidebar = () => {
+    if (isMobileNav()) {
+        const open = sidebar.classList.toggle("mobile-visible");
+        mobileShade.classList.toggle("visible", open);
+        topbarToggle.setAttribute("aria-expanded", String(open));
+        topbarToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+        document.body.classList.toggle("mobile-nav-open", open);
+    } else {
+        const open = sidebar.classList.toggle("open");
+        appShell.classList.toggle("sidebar-collapsed", !open);
+        sidebarToggle.setAttribute("aria-expanded", String(open));
+        topbarToggle.setAttribute("aria-expanded", String(open));
+        sidebarToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+        topbarToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    }
 };
 sidebarToggle.addEventListener("click",toggleSidebar);
 topbarToggle.addEventListener("click",toggleSidebar);
+mobileShade.addEventListener("click",closeMobileNav);
+window.addEventListener("resize",()=>{if(!isMobileNav())closeMobileNav();});
+document.addEventListener("keydown",event=>{if(event.key==="Escape")closeMobileNav();});
 const appDialog=document.getElementById("app-dialog"),dialogMessage=document.getElementById("app-dialog-message"),dialogTitle=document.getElementById("app-dialog-title"),dialogCancel=document.getElementById("app-dialog-cancel"),dialogConfirm=document.getElementById("app-dialog-confirm");
 let pendingForm=null;
 const closeAppDialog=()=>{appDialog.classList.remove("open");document.body.classList.remove("dialog-open");pendingForm=null;};

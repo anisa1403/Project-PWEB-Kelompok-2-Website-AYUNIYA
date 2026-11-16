@@ -42,12 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create an account — AYUNIYA</title>
-    <link rel="stylesheet" href="assets/css/auth.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/auth.css"><link rel="stylesheet" href="assets/css/auth-storybook.css">
 </head>
 <body>
     <div class="auth-shell">
         <aside class="auth-intro">
-            <a class="brand" href="index.php"><span class="brand-mark">A</span> AYUNIYA</a>
+            <a class="brand" href="index.php"><span class="brand-mark">☾</span> AYUNIYA</a>
             <div class="intro-copy"><h1>Make room for <span>your story.</span></h1><p>Create a calm corner for your feelings, memories, intentions, and everyday growth.</p></div>
             <p class="intro-quote">“Small rituals can make meaningful change.”</p>
         </aside>
