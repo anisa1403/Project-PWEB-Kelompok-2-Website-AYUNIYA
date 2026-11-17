@@ -32,8 +32,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$statement = $pdo->prepare('SELECT id_journal, title, content, created_at, updated_at FROM journals WHERE user_id = ? ORDER BY updated_at DESC');
-$statement->execute([$userId]);
+$perPage = 10;
+$page = max(1, (int) ($_GET['page'] ?? 1));
+$search = trim((string) ($_GET['q'] ?? ''));
+$where = ' WHERE user_id = ?';
+$queryParams = [$userId];
+if ($search !== '') {
+    $where .= ' AND (title LIKE ? OR content LIKE ? OR created_at LIKE ? OR updated_at LIKE ?)';
+    $searchValue = '%' . $search . '%';
+    $queryParams = array_merge($queryParams, [$searchValue, $searchValue, $searchValue, $searchValue]);
+}
+$countStatement = $pdo->prepare('SELECT COUNT(*) FROM journals' . $where);
+$countStatement->execute($queryParams);
+$totalJournals = (int) $countStatement->fetchColumn();
+$totalPages = max(1, (int) ceil($totalJournals / $perPage));
+$page = min($page, $totalPages);
+$offset = ($page - 1) * $perPage;
+
+$statement = $pdo->prepare('SELECT id_journal, title, content, created_at, updated_at FROM journals' . $where . ' ORDER BY updated_at DESC LIMIT ' . $perPage . ' OFFSET ' . $offset);
+$statement->execute($queryParams);
 $journals = $statement->fetchAll();
 
 $pageTitle = 'Daily Journal';
@@ -64,8 +81,12 @@ require __DIR__ . '/includes/app_header.php';
     </section>
     <section class="panel">
         <h2>My journal</h2>
+        <form class="list-search" method="get">
+            <label for="journal-search">Cari journal</label>
+            <div><input id="journal-search" name="q" value="<?php echo e($search); ?>" placeholder="Cari judul, isi, atau tanggal"><button type="submit">Cari</button></div>
+        </form>
         <div class="list">
-            <?php if (!$journals): ?><p class="subcopy">Your journal is waiting for its first page.</p><?php endif; ?>
+            <?php if (!$journals): ?><p class="subcopy"><?php echo $search !== '' ? 'Tidak ada journal yang cocok dengan pencarianmu.' : 'Your journal is waiting for its first page.'; ?></p><?php endif; ?>
             <?php foreach ($journals as $journal): ?>
                 <article class="list-item crud-item">
                     <h3><?php echo e((string) $journal['title']); ?></h3>
@@ -81,6 +102,15 @@ require __DIR__ . '/includes/app_header.php';
                 </article>
             <?php endforeach; ?>
         </div>
+        <?php if ($totalJournals > 0): ?>
+            <div class="pagination">
+                <span>Halaman <?php echo $page; ?> dari <?php echo $totalPages; ?> · <?php echo $totalJournals; ?> journal</span>
+                <div>
+                    <?php if ($page > 1): ?><a href="journal.php?q=<?php echo urlencode($search); ?>&amp;page=<?php echo $page - 1; ?>">← Sebelumnya</a><?php endif; ?>
+                    <?php if ($page < $totalPages): ?><a href="journal.php?q=<?php echo urlencode($search); ?>&amp;page=<?php echo $page + 1; ?>">Selanjutnya →</a><?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </section>
     </div>
 </main>

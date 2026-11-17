@@ -135,6 +135,7 @@ a {
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
+.password-field>div{position:relative}.password-field input{padding-right:48px}.password-toggle{position:absolute;right:9px;top:50%;display:grid;width:32px;height:32px;place-items:center;border:0;border-radius:8px;color:var(--muted);background:transparent;cursor:pointer;transform:translateY(-50%)}.password-toggle:hover{color:var(--deep-purple);background:var(--lavender)}.password-toggle svg{width:17px;height:17px}
 .form-group input:focus {
   border-color: var(--purple);
   box-shadow: 0 0 0 4px rgba(150, 119, 197, 0.14);

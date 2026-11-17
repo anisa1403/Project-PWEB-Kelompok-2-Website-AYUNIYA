@@ -34,7 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log in — AYUNIYA</title>
+<<<<<<< HEAD
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/auth.css"><link rel="stylesheet" href="assets/css/auth-storybook.css">
+=======
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/auth.css?v=20261116-9"><link rel="stylesheet" href="assets/css/auth-storybook.css?v=20261116-9">
+>>>>>>> a3bd38c (perbaikan alur dan penambahan halaman admin)
 </head>
 <body>
     <div class="auth-shell">
@@ -49,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if ($error !== ''): ?><p class="auth-error"><?php echo e($error); ?></p><?php endif; ?>
                 <form method="post" action="login.php">
                     <div class="form-group"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" required></div>
-                    <div class="form-group"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+                    <div class="form-group password-field"><label for="password">Password</label><div><input id="password" name="password" type="password" autocomplete="current-password" required><button class="password-toggle" type="button" aria-label="Show password"><i data-feather="eye"></i></button></div></div>
                     <button class="button" type="submit">Log in <span aria-hidden="true">→</span></button>
                 </form>
                 <p class="auth-switch">New to AYUNIYA? <a href="register.php">Start your journey</a></p>
@@ -57,5 +61,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </section>
         </main>
     </div>
+    <script src="https://unpkg.com/feather-icons"></script><script>
+        feather.replace();
+        document.querySelectorAll(".password-toggle").forEach((toggle) => toggle.addEventListener("click", () => {
+            const input = toggle.parentElement.querySelector("input"), visible = input.type === "text";
+            input.type = visible ? "password" : "text";
+            toggle.setAttribute("aria-label", visible ? "Show password" : "Hide password");
+            toggle.innerHTML = `<i data-feather="${visible ? "eye" : "eye-off"}"></i>`;
+            feather.replace();
+        }));
+    </script>
 </body>
 </html>

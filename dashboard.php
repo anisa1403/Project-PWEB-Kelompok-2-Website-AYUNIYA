@@ -8,7 +8,7 @@ requireLogin();
 $userId = (int) $_SESSION['user_id'];
 $today = date('Y-m-d');
 $hour = (int) date('G');
-$greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : ($hour < 21 ? 'Good evening' : 'Good night'));
+$greeting = $hour < 12 ? 'Good morning' : ($hour < 14 ? 'Good day' : ($hour < 18 ? 'Good afternoon' : ($hour < 21 ? 'Good evening' : 'Good night')));
 $moodLabels = ['happy' => 'Happy 😊', 'good' => 'Good 🙂', 'okay' => 'Okay 😐', 'sad' => 'Sad 😢', 'stressed' => 'Stressed 😫'];
 
 $statement = $pdo->prepare('SELECT mood FROM moods WHERE user_id = ? AND mood_date = ? LIMIT 1');

@@ -50,10 +50,27 @@ $todayStatement = $pdo->prepare('SELECT mood FROM moods WHERE user_id = ? AND mo
 $todayStatement->execute([$userId]);
 $todayMood = (string) ($todayStatement->fetchColumn() ?: '');
 
+$perPage = 10;
+$page = max(1, (int) ($_GET['page'] ?? 1));
+$search = trim((string) ($_GET['q'] ?? ''));
+$where = ' WHERE user_id = ?';
+$queryParams = [$userId];
+if ($search !== '') {
+    $where .= ' AND (mood LIKE ? OR note LIKE ? OR mood_date LIKE ?)';
+    $searchValue = '%' . $search . '%';
+    $queryParams = array_merge($queryParams, [$searchValue, $searchValue, $searchValue]);
+}
+$countStatement = $pdo->prepare('SELECT COUNT(*) FROM moods' . $where);
+$countStatement->execute($queryParams);
+$totalMoods = (int) $countStatement->fetchColumn();
+$totalPages = max(1, (int) ceil($totalMoods / $perPage));
+$page = min($page, $totalPages);
+$offset = ($page - 1) * $perPage;
+
 $historyStatement = $pdo->prepare(
-    'SELECT id_mood, mood, note, mood_date FROM moods WHERE user_id = ? ORDER BY mood_date DESC LIMIT 10'
+    'SELECT id_mood, mood, note, mood_date FROM moods' . $where . ' ORDER BY mood_date DESC LIMIT ' . $perPage . ' OFFSET ' . $offset
 );
-$historyStatement->execute([$userId]);
+$historyStatement->execute($queryParams);
 $history = $historyStatement->fetchAll();
 
 $pageTitle = 'Mood Tracker';
@@ -127,7 +144,12 @@ require __DIR__ . '/includes/app_header.php';
     </section>
     <section class="panel" style="margin-top:20px">
         <h2>Your mood history</h2>
+        <form class="list-search" method="get">
+            <label for="mood-search">Cari mood</label>
+            <div><input id="mood-search" name="q" value="<?php echo e($search); ?>" placeholder="Cari mood, catatan, atau tanggal"><button type="submit">Cari</button></div>
+        </form>
         <div class="list">
+            <?php if (!$history): ?><p class="subcopy"><?php echo $search !== '' ? 'Tidak ada mood yang cocok dengan pencarianmu.' : 'Belum ada riwayat mood.'; ?></p><?php endif; ?>
             <?php foreach ($history as $entry): ?>
                 <article class="list-item">
                     <h3><?php echo e($moods[$entry['mood']]['emoji'] . ' ' . $moods[$entry['mood']]['label']); ?> · <?php echo e((string) $entry['mood_date']); ?></h3>
@@ -143,6 +165,15 @@ require __DIR__ . '/includes/app_header.php';
                 </article>
             <?php endforeach; ?>
         </div>
+        <?php if ($totalMoods > 0): ?>
+            <div class="pagination">
+                <span>Halaman <?php echo $page; ?> dari <?php echo $totalPages; ?> · <?php echo $totalMoods; ?> mood</span>
+                <div>
+                    <?php if ($page > 1): ?><a href="mood.php?q=<?php echo urlencode($search); ?>&amp;page=<?php echo $page - 1; ?>">← Sebelumnya</a><?php endif; ?>
+                    <?php if ($page < $totalPages): ?><a href="mood.php?q=<?php echo urlencode($search); ?>&amp;page=<?php echo $page + 1; ?>">Selanjutnya →</a><?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </section>
 </main>
 <div class="mood-modal-backdrop" id="edit-mood-modal" role="dialog" aria-modal="true" aria-labelledby="edit-mood-title">

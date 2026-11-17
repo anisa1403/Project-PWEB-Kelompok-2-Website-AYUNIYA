@@ -1,7 +1,7 @@
 </div></div>
 <div class="alert-dialog-backdrop" id="app-dialog" role="dialog" aria-modal="true" aria-labelledby="app-dialog-title">
     <section class="alert-dialog">
-        <div class="alert-dialog-icon"><i data-feather="help-circle"></i></div>
+        <div class="alert-dialog-icon" id="app-dialog-icon" aria-hidden="true"><i data-feather="help-circle"></i></div>
         <h2 id="app-dialog-title">Are you sure?</h2>
         <p id="app-dialog-message">This action cannot be undone.</p>
         <div class="alert-dialog-actions">
@@ -56,14 +56,21 @@ topbarToggle.addEventListener("click",toggleSidebar);
 mobileShade.addEventListener("click",closeMobileNav);
 window.addEventListener("resize",()=>{if(!isMobileNav())closeMobileNav();});
 document.addEventListener("keydown",event=>{if(event.key==="Escape")closeMobileNav();});
+<<<<<<< HEAD
 const appDialog=document.getElementById("app-dialog"),dialogMessage=document.getElementById("app-dialog-message"),dialogTitle=document.getElementById("app-dialog-title"),dialogCancel=document.getElementById("app-dialog-cancel"),dialogConfirm=document.getElementById("app-dialog-confirm");
+=======
+const appDialog=document.getElementById("app-dialog"),dialogIcon=document.getElementById("app-dialog-icon"),dialogMessage=document.getElementById("app-dialog-message"),dialogTitle=document.getElementById("app-dialog-title"),dialogCancel=document.getElementById("app-dialog-cancel"),dialogConfirm=document.getElementById("app-dialog-confirm");
+>>>>>>> a3bd38c (perbaikan alur dan penambahan halaman admin)
 let pendingForm=null;
+const setDialogIcon=(iconName,isWarning)=>{dialogIcon.innerHTML=feather.icons[iconName].toSvg();dialogIcon.classList.toggle("warning",isWarning);};
 const closeAppDialog=()=>{appDialog.classList.remove("open");document.body.classList.remove("dialog-open");pendingForm=null;};
 document.querySelectorAll("form[data-confirm]").forEach((form)=>{
     form.addEventListener("submit",(event)=>{
         if(form.dataset.confirmed==="true"){form.dataset.confirmed="";return;}
         event.preventDefault();
         pendingForm=form;
+        const isDelete=form.dataset.confirmAction==="Hapus"||form.dataset.confirmAction==="Delete";
+        setDialogIcon(isDelete?"alert-triangle":"log-out",isDelete);
         dialogTitle.textContent=form.dataset.confirmTitle||"Are you sure?";
         dialogMessage.textContent=form.dataset.confirm;
         dialogConfirm.textContent=form.dataset.confirmAction||"Continue";
@@ -71,7 +78,7 @@ document.querySelectorAll("form[data-confirm]").forEach((form)=>{
     });
 });
 dialogCancel.addEventListener("click",closeAppDialog);
-dialogConfirm.addEventListener("click",()=>{if(!pendingForm)return;pendingForm.dataset.confirmed="true";closeAppDialog();pendingForm.submit();});
+dialogConfirm.addEventListener("click",()=>{if(!pendingForm)return;const form=pendingForm;form.dataset.confirmed="true";closeAppDialog();form.submit();});
 appDialog.addEventListener("click",(event)=>{if(event.target===appDialog)closeAppDialog();});
 document.addEventListener("keydown",(event)=>{if(event.key==="Escape"&&appDialog.classList.contains("open"))closeAppDialog();});
 </script></body></html>

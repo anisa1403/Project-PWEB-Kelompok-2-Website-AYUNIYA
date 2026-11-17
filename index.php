@@ -225,6 +225,7 @@ declare(strict_types=1);
         .modal-form[hidden] { display: none; }
         .modal-form label { display: grid; gap: 6px; color: var(--ink); font-size: 13px; font-weight: 700; }
         .modal-form input { width: 100%; min-height: 46px; padding: 0 13px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: #fff; font: inherit; outline: none; }
+        .modal-password-field { position: relative; display: block; }.modal-password-field input { padding-right: 48px; }.modal-password-toggle { position: absolute; right: 8px; bottom: 7px; display: grid; width: 32px; height: 32px; place-items: center; border: 0; border-radius: 8px; color: var(--muted); background: transparent; cursor: pointer; }.modal-password-toggle:hover { color: var(--deep-purple); background: var(--lavender); }.modal-password-toggle svg { width: 17px; height: 17px; }
         .modal-form input:focus { border-color: var(--purple); box-shadow: 0 0 0 4px rgba(150,119,197,.14); }
         .modal-form .button { width: 100%; margin-top: 5px; }
         .modal-switch { margin: 20px 0 0; color: var(--muted); text-align: center; font-size: 13px; }
@@ -356,7 +357,7 @@ declare(strict_types=1);
             </div>
             <div class="nav-actions">
                 <a class="login-link" href="login.php">Log in</a>
-                <a class="button" href="register.php" data-auth-trigger="register">Get started <span aria-hidden="true">→</span></a>
+                <a class="button" href="register.php">Get started <span aria-hidden="true">→</span></a>
             </div>
             <button class="menu-button" id="menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button>
         </nav>
@@ -450,7 +451,7 @@ declare(strict_types=1);
         <section class="cta">
             <div class="cta-inner container">
                 <div><h2>Start where you are.<br>Grow from there.</h2><p>Your story is always worth making space for.</p></div>
-                <a class="button" href="register.php" data-auth-trigger="register">Get started <span aria-hidden="true">→</span></a>
+                <a class="button" href="register.php" data-auth-trigger="register">Create your space <span aria-hidden="true">→</span></a>
             </div>
         </section>
     </main>
@@ -467,16 +468,16 @@ declare(strict_types=1);
                 <label for="modal-register-email">Email address</label>
                 <input id="modal-register-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
                 <label for="modal-register-password">Create a password</label>
-                <input id="modal-register-password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required>
+                <span class="modal-password-field"><input id="modal-register-password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required><button class="modal-password-toggle" type="button" aria-label="Show password"><i data-feather="eye"></i></button></span>
                 <label for="modal-confirm-password">Confirm password</label>
-                <input id="modal-confirm-password" name="confirm_password" type="password" autocomplete="new-password" placeholder="Repeat your password" minlength="8" required>
+                <span class="modal-password-field"><input id="modal-confirm-password" name="confirm_password" type="password" autocomplete="new-password" placeholder="Repeat your password" minlength="8" required><button class="modal-password-toggle" type="button" aria-label="Show password confirmation"><i data-feather="eye"></i></button></span>
                 <button class="button" type="submit">Create account <span aria-hidden="true">→</span></button>
             </form>
             <form class="modal-form" id="login-form" action="login.php" method="post" hidden>
                 <label for="modal-login-email">Email address</label>
                 <input id="modal-login-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
                 <label for="modal-login-password">Password</label>
-                <input id="modal-login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+                <span class="modal-password-field"><input id="modal-login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="modal-password-toggle" type="button" aria-label="Show password"><i data-feather="eye"></i></button></span>
                 <button class="button" type="submit">Log in <span aria-hidden="true">→</span></button>
             </form>
             <p class="modal-switch" id="modal-switch">Already have an account? <button type="button" data-auth-switch="login">Log in</button></p>
@@ -514,11 +515,21 @@ declare(strict_types=1);
         const modalTitle = document.getElementById("modal-title");
         const modalDescription = document.getElementById("modal-description");
         const modalSwitch = document.getElementById("modal-switch");
+        document.querySelectorAll(".modal-password-toggle").forEach((toggle) => toggle.addEventListener("click", () => {
+            const input = toggle.parentElement.querySelector("input"), visible = input.type === "text";
+            input.type = visible ? "password" : "text";
+            toggle.setAttribute("aria-label", visible ? "Show password" : "Hide password");
+            toggle.innerHTML = `<i data-feather="${visible ? "eye" : "eye-off"}"></i>`;
+            feather.replace();
+        }));
 
         const showAuthModal = (mode) => {
             const isLogin = mode === "login";
             registerForm.reset();
             loginForm.reset();
+            document.querySelectorAll(".modal-password-field input").forEach((input) => { input.type = "password"; });
+            document.querySelectorAll(".modal-password-toggle").forEach((toggle) => { toggle.setAttribute("aria-label", "Show password"); toggle.innerHTML = '<i data-feather="eye"></i>'; });
+            feather.replace();
             registerForm.hidden = isLogin;
             loginForm.hidden = !isLogin;
             modalKicker.textContent = isLogin ? "Welcome back" : "Begin gently";

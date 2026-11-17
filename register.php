@@ -42,7 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create an account — AYUNIYA</title>
+<<<<<<< HEAD
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/auth.css"><link rel="stylesheet" href="assets/css/auth-storybook.css">
+=======
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">    <link rel="stylesheet" href="assets/css/auth.css?v=20261116-9"><link rel="stylesheet" href="assets/css/auth-storybook.css?v=20261116-9">
+>>>>>>> a3bd38c (perbaikan alur dan penambahan halaman admin)
 </head>
 <body>
     <div class="auth-shell">
@@ -58,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="post" action="register.php">
                     <div class="form-group"><label for="name">Full name</label><input id="name" name="name" type="text" autocomplete="name" required></div>
                     <div class="form-group"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" required></div>
-                    <div class="form-group"><label for="password">Password</label><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required></div>
-                    <div class="form-group"><label for="confirm_password">Confirm password</label><input id="confirm_password" name="confirm_password" type="password" minlength="8" autocomplete="new-password" required></div>
+                    <div class="form-group password-field"><label for="password">Password</label><div><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required><button class="password-toggle" type="button" aria-label="Show password"><i data-feather="eye"></i></button></div></div>
+                    <div class="form-group password-field"><label for="confirm_password">Confirm password</label><div><input id="confirm_password" name="confirm_password" type="password" minlength="8" autocomplete="new-password" required><button class="password-toggle" type="button" aria-label="Show password confirmation"><i data-feather="eye"></i></button></div></div>
                     <button class="button" type="submit">Create account <span aria-hidden="true">→</span></button>
                 </form>
                 <p class="auth-switch">Already have an account? <a href="login.php">Log in</a></p>
@@ -67,5 +71,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </section>
         </main>
     </div>
+    <script src="https://unpkg.com/feather-icons"></script><script>
+        feather.replace();
+        document.querySelectorAll(".password-toggle").forEach((toggle) => toggle.addEventListener("click", () => {
+            const input = toggle.parentElement.querySelector("input"), visible = input.type === "text";
+            input.type = visible ? "password" : "text";
+            toggle.setAttribute("aria-label", visible ? "Show password" : "Hide password");
+            toggle.innerHTML = `<i data-feather="${visible ? "eye" : "eye-off"}"></i>`;
+            feather.replace();
+        }));
+    </script>
 </body>
 </html>

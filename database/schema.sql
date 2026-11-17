@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS goals (
     user_id INT UNSIGNED NOT NULL,
     title VARCHAR(200) NOT NULL,
     description TEXT NULL,
-    deadline DATE NULL,
+    deadline DATETIME NULL,
     status ENUM('pending', 'completed') NOT NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT goals_user_fk FOREIGN KEY (user_id) REFERENCES users (id_user) ON DELETE CASCADE
@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS songs (
     id_song INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
     artist VARCHAR(150) NOT NULL,
-    album_art VARCHAR(500) NULL,
     spotify_embed_url VARCHAR(500) NULL,
     mood_category VARCHAR(20) NOT NULL,
     vibe_category VARCHAR(20) NOT NULL

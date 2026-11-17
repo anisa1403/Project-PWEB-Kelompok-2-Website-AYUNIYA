@@ -9,13 +9,31 @@ $userId = (int) $_SESSION['user_id'];
 $message = '';
 $error = '';
 
+function formatGoalDeadline(?string $deadline): string
+{
+    if ($deadline === null || $deadline === '') {
+        return 'No deadline';
+    }
+    $date = strtotime($deadline);
+    return $date === false ? $deadline : date('d M Y, H:i', $date);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string) ($_POST['action'] ?? 'create');
     $goalId = (int) ($_POST['goal_id'] ?? 0);
     $title = trim((string) ($_POST['title'] ?? ''));
     $description = trim((string) ($_POST['description'] ?? ''));
-    $deadline = trim((string) ($_POST['deadline'] ?? ''));
-    $deadline = $deadline !== '' ? $deadline : null;
+    $deadlineInput = trim((string) ($_POST['deadline'] ?? ''));
+    $deadline = null;
+    if ($deadlineInput !== '') {
+        $deadlineDate = DateTime::createFromFormat('Y-m-d\TH:i', $deadlineInput);
+        $deadlineErrors = DateTime::getLastErrors();
+        if (!$deadlineDate || ($deadlineErrors !== false && ($deadlineErrors['warning_count'] > 0 || $deadlineErrors['error_count'] > 0))) {
+            $error = 'Deadline harus berupa tanggal dan jam yang valid.';
+        } else {
+            $deadline = $deadlineDate->format('Y-m-d H:i:s');
+        }
+    }
 
     if ($action === 'delete' && $goalId > 0) {
         $statement = $pdo->prepare('DELETE FROM goals WHERE id_goal = ? AND user_id = ?');
@@ -25,21 +43,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $pdo->prepare("UPDATE goals SET status = IF(status = 'completed', 'pending', 'completed') WHERE id_goal = ? AND user_id = ?");
         $statement->execute([$goalId, $userId]);
         $message = 'Status goal berhasil diperbarui.';
-    } elseif (($action === 'create' || $action === 'edit') && $title === '') {
+    } elseif (($action === 'create' || $action === 'edit') && $error === '' && $title === '') {
         $error = 'Judul goal wajib diisi.';
-    } elseif ($action === 'edit' && $goalId > 0) {
+    } elseif ($action === 'edit' && $goalId > 0 && $error === '') {
         $statement = $pdo->prepare('UPDATE goals SET title = ?, description = ?, deadline = ? WHERE id_goal = ? AND user_id = ?');
         $statement->execute([$title, $description, $deadline, $goalId, $userId]);
         $message = 'Goal berhasil diperbarui.';
-    } elseif ($action === 'create') {
+    } elseif ($action === 'create' && $error === '') {
         $statement = $pdo->prepare('INSERT INTO goals (user_id, title, description, deadline) VALUES (?, ?, ?, ?)');
         $statement->execute([$userId, $title, $description, $deadline]);
         $message = 'Goal berhasil ditambahkan.';
     }
 }
 
-$statement = $pdo->prepare('SELECT id_goal, title, description, deadline, status FROM goals WHERE user_id = ? ORDER BY status ASC, created_at DESC');
-$statement->execute([$userId]);
+$perPage = 10;
+$page = max(1, (int) ($_GET['page'] ?? 1));
+$search = trim((string) ($_GET['q'] ?? ''));
+$where = ' WHERE user_id = ?';
+$queryParams = [$userId];
+if ($search !== '') {
+    $where .= ' AND (title LIKE ? OR description LIKE ? OR deadline LIKE ? OR status LIKE ?)';
+    $searchValue = '%' . $search . '%';
+    $queryParams = array_merge($queryParams, [$searchValue, $searchValue, $searchValue, $searchValue]);
+}
+$countStatement = $pdo->prepare('SELECT COUNT(*) FROM goals' . $where);
+$countStatement->execute($queryParams);
+$totalGoals = (int) $countStatement->fetchColumn();
+$totalPages = max(1, (int) ceil($totalGoals / $perPage));
+$page = min($page, $totalPages);
+$offset = ($page - 1) * $perPage;
+
+$statement = $pdo->prepare('SELECT id_goal, title, description, deadline, status FROM goals' . $where . ' ORDER BY status ASC, created_at DESC LIMIT ' . $perPage . ' OFFSET ' . $offset);
+$statement->execute($queryParams);
 $goals = $statement->fetchAll();
 
 $pageTitle = 'Daily Goals';
@@ -63,18 +98,22 @@ require __DIR__ . '/includes/app_header.php';
             <input type="hidden" name="action" value="create">
             <label>Goal title<input name="title" required maxlength="200" placeholder="What would you like to do?"></label>
             <label>Description<textarea name="description" placeholder="A little detail..."></textarea></label>
-            <label>Deadline<input name="deadline" type="date"></label>
+            <label>Deadline<input name="deadline" type="datetime-local"></label>
             <button class="button" type="submit">Save goal <i data-feather="arrow-right"></i></button>
         </form>
     </section>
     <section class="panel">
         <h2>My goals</h2>
+        <form class="list-search" method="get">
+            <label for="goal-search">Cari goal</label>
+            <div><input id="goal-search" name="q" value="<?php echo e($search); ?>" placeholder="Cari judul, deskripsi, status, atau deadline"><button type="submit">Cari</button></div>
+        </form>
         <div class="list">
-            <?php if (!$goals): ?><p class="subcopy">Set one small intention to begin.</p><?php endif; ?>
+            <?php if (!$goals): ?><p class="subcopy"><?php echo $search !== '' ? 'Tidak ada goal yang cocok dengan pencarianmu.' : 'Set one small intention to begin.'; ?></p><?php endif; ?>
             <?php foreach ($goals as $goal): ?>
                 <article class="list-item crud-item <?php echo $goal['status'] === 'completed' ? 'goal-complete' : ''; ?>">
                     <h3><?php echo e((string) $goal['title']); ?></h3>
-                    <p><?php echo e((string) ($goal['description'] ?: 'No description')); ?> · <?php echo e((string) ($goal['deadline'] ?: 'No deadline')); ?></p>
+                    <p><?php echo e((string) ($goal['description'] ?: 'No description')); ?> · <?php echo e(formatGoalDeadline($goal['deadline'] !== null ? (string) $goal['deadline'] : null)); ?></p>
                     <span class="goal-status"><?php echo $goal['status'] === 'completed' ? 'Completed' : 'In progress'; ?></span>
                     <div class="crud-actions">
                         <form method="post">
@@ -82,7 +121,7 @@ require __DIR__ . '/includes/app_header.php';
                             <input type="hidden" name="goal_id" value="<?php echo (int) $goal['id_goal']; ?>">
                             <button class="crud-action" type="submit"><i data-feather="check-circle"></i> <?php echo $goal['status'] === 'completed' ? 'Undo' : 'Complete'; ?></button>
                         </form>
-                        <button class="crud-action edit-goal" type="button" data-id="<?php echo (int) $goal['id_goal']; ?>" data-title="<?php echo e((string) $goal['title']); ?>" data-description="<?php echo e((string) $goal['description']); ?>" data-deadline="<?php echo e((string) $goal['deadline']); ?>"><i data-feather="edit-3"></i> Edit</button>
+                        <button class="crud-action edit-goal" type="button" data-id="<?php echo (int) $goal['id_goal']; ?>" data-title="<?php echo e((string) $goal['title']); ?>" data-description="<?php echo e((string) $goal['description']); ?>" data-deadline="<?php echo $goal['deadline'] !== null ? e(date('Y-m-d\TH:i', strtotime((string) $goal['deadline']))) : ''; ?>"><i data-feather="edit-3"></i> Edit</button>
                         <form method="post" data-confirm="Goal ini akan dihapus permanen." data-confirm-title="Hapus goal?" data-confirm-action="Hapus">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="goal_id" value="<?php echo (int) $goal['id_goal']; ?>">
@@ -92,6 +131,15 @@ require __DIR__ . '/includes/app_header.php';
                 </article>
             <?php endforeach; ?>
         </div>
+        <?php if ($totalGoals > 0): ?>
+            <div class="pagination">
+                <span>Halaman <?php echo $page; ?> dari <?php echo $totalPages; ?> · <?php echo $totalGoals; ?> goal</span>
+                <div>
+                    <?php if ($page > 1): ?><a href="goals.php?q=<?php echo urlencode($search); ?>&amp;page=<?php echo $page - 1; ?>">← Sebelumnya</a><?php endif; ?>
+                    <?php if ($page < $totalPages): ?><a href="goals.php?q=<?php echo urlencode($search); ?>&amp;page=<?php echo $page + 1; ?>">Selanjutnya →</a><?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </section>
     </div>
 </main>
@@ -103,7 +151,7 @@ require __DIR__ . '/includes/app_header.php';
             <input type="hidden" name="action" value="edit"><input type="hidden" name="goal_id" id="goal-id">
             <label>Goal title<input name="title" id="goal-title" required maxlength="200"></label>
             <label>Description<textarea name="description" id="goal-description"></textarea></label>
-            <label>Deadline<input name="deadline" id="goal-deadline" type="date"></label>
+            <label>Deadline<input name="deadline" id="goal-deadline" type="datetime-local"></label>
             <button class="button" type="submit">Update goal <i data-feather="check"></i></button>
         </form>
     </section>
