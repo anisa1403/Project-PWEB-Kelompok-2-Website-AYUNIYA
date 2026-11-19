@@ -295,16 +295,22 @@ declare(strict_types=1);
     <style id="ayuniya-hero-overrides">
       /* AYUNIYA landing: celestial artwork and accessible controls. */
       html { scroll-padding-top: 2rem; }
-      .site-header { position:absolute; top:0; left:0; right:0; z-index:30; background:transparent!important; border:0!important; box-shadow:none!important; backdrop-filter:none!important; }
+      .site-header { position:sticky; top:0; z-index:30; background:rgba(52,37,68,.12)!important; border-bottom:1px solid rgba(255,255,255,.16)!important; box-shadow:0 6px 24px rgba(35,20,50,.18)!important; backdrop-filter:blur(10px)!important; transition:background .25s ease, border-color .25s ease, box-shadow .25s ease, backdrop-filter .25s ease; }
+      .site-header.is-scrolled { background:rgba(255,250,253,.96)!important; border-bottom-color:#efd8f0!important; box-shadow:0 5px 22px rgba(77,39,106,.14)!important; backdrop-filter:blur(16px)!important; }
       .site-header .nav { height:88px; width:min(1380px, calc(100% - 64px)); }
-      .site-header .brand { color:#fff1f9!important; font-size:26px; letter-spacing:.06em; text-shadow:0 2px 12px #38235466; }
+      .site-header .brand { color:#fff1f9!important; font-size:26px; letter-spacing:.06em; text-shadow:0 2px 12px #38235466; transition:color .25s ease, text-shadow .25s ease; }
+      .site-header.is-scrolled .brand { color:#5a3875!important; text-shadow:none; }
       .site-header .brand-mark { width:47px; height:47px; border-radius:15px; background:linear-gradient(145deg,#c696e2,#9a62c7); box-shadow:0 8px 24px #39255433; }
-      .site-header .nav-links { gap:50px; font-size:15px; color:#f9eafa; }
+      .site-header .nav-links { gap:50px; font-size:15px; color:#f9eafa; transition:color .25s ease; }
+      .site-header.is-scrolled .nav-links { color:#765b83; }
       .site-header .nav-links a:hover,.site-header .login-link:hover { color:#ffe2e9!important; }
+      .site-header.is-scrolled .nav-links a:hover,.site-header.is-scrolled .login-link:hover { color:#754b9c!important; }
       .site-header .nav-actions { gap:31px; }
-      .site-header .login-link { color:#fff1f9!important; font-size:15px; font-weight:600; }
+      .site-header .login-link { color:#fff1f9!important; font-size:15px; font-weight:600; transition:color .25s ease; }
+      .site-header.is-scrolled .login-link { color:#754b9c!important; }
       .site-header .nav-actions .button { min-height:47px; border-radius:17px; padding:0 25px; background:#965cc8; box-shadow:0 12px 23px #49266140; }
-      .site-header .menu-button { color:#fff0fb; }
+      .site-header .menu-button { color:#fff0fb; transition:color .25s ease; }
+      .site-header.is-scrolled .menu-button { color:#694880; }
       .ayuniya-hero { position:relative; isolation:isolate; display:flex; align-items:center; justify-content:center; min-height:100vh; min-height:100svh; overflow:hidden; padding:125px 24px 95px; background:linear-gradient(180deg,#4b327a 0%,#71509c 35%,#a76ab0 65%,#eea5cf 100%); text-align:center; }
       .ayuniya-sky { position:absolute; z-index:-1; inset:0; width:100%; height:100%; pointer-events:none; }
       .ayuniya-hero-content { position:relative; z-index:1; width:min(1100px,100%); padding:0; transform:translateY(6vh); }
@@ -495,7 +501,16 @@ declare(strict_types=1);
     <script>
         feather.replace();
         const nav = document.getElementById("main-nav");
+        const siteHeader = document.querySelector(".site-header");
+        const heroSection = document.getElementById("home");
         const menuButton = document.getElementById("menu-button");
+        const updateHeaderState = () => {
+            const scrollThreshold = Math.max(40, heroSection.offsetHeight - siteHeader.offsetHeight - 80);
+            siteHeader.classList.toggle("is-scrolled", window.scrollY > scrollThreshold);
+        };
+        window.addEventListener("scroll", updateHeaderState, { passive: true });
+        window.addEventListener("resize", updateHeaderState);
+        updateHeaderState();
         menuButton.addEventListener("click", () => {
             const isOpen = nav.classList.toggle("open");
             menuButton.setAttribute("aria-expanded", String(isOpen));

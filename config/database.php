@@ -4,11 +4,7 @@ declare(strict_types=1);
 date_default_timezone_set('Asia/Jakarta');
 
 $databaseHost = '127.0.0.1';
-<<<<<<< HEAD
-$databasePort = 3308;
-=======
 $databasePort = 3306;
->>>>>>> a3bd38c (perbaikan alur dan penambahan halaman admin)
 $databaseName = 'ayuniya_db';
 $databaseUser = 'root';
 $databasePassword = '';

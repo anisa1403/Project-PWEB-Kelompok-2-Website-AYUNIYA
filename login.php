@@ -34,11 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log in — AYUNIYA</title>
-<<<<<<< HEAD
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/auth.css"><link rel="stylesheet" href="assets/css/auth-storybook.css">
-=======
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/auth.css?v=20261116-9"><link rel="stylesheet" href="assets/css/auth-storybook.css?v=20261116-9">
->>>>>>> a3bd38c (perbaikan alur dan penambahan halaman admin)
 </head>
 <body>
     <div class="auth-shell">

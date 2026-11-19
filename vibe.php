@@ -31,18 +31,6 @@ $selectedVibe = (string) ($_GET['vibe'] ?? '');
 if ($selectedVibe !== '' && !array_key_exists($selectedVibe, $vibeOptions)) {
     $selectedVibe = '';
 }
-<<<<<<< HEAD
-$query = 'SELECT id_song, title, artist, album_art, spotify_embed_url, mood_category, vibe_category
-          FROM songs WHERE (mood_category = ? OR mood_category = "all")';
-$params = [$selectedMood];
-if ($selectedVibe !== '') {
-    $categories = $vibeOptions[$selectedVibe]['categories'];
-    $query .= ' AND LOWER(vibe_category) IN (' . implode(',', array_fill(0, count($categories), '?')) . ')';
-    $params = array_merge($params, $categories);
-}
-$query .= ' ORDER BY id_song DESC';
-=======
-
 function spotifyEmbedUrl(string $url): ?string
 {
     $parts = parse_url(trim($url));
@@ -81,7 +69,6 @@ $page = min($page, $totalPages);
 $offset = ($page - 1) * $perPage;
 
 $query = 'SELECT id_song, title, spotify_embed_url, mood_category, vibe_category' . $whereQuery . ' ORDER BY id_song DESC LIMIT ' . $perPage . ' OFFSET ' . $offset;
->>>>>>> a3bd38c (perbaikan alur dan penambahan halaman admin)
 $statement = $pdo->prepare($query);
 $statement->execute($params);
 $songs = $statement->fetchAll();
@@ -118,25 +105,18 @@ require __DIR__ . '/includes/app_header.php';
     <section class="panel vibe-music-panel">
         <div class="vibe-playlist-title"><h2>VibeTunes for you</h2></div>
         <p class="subcopy"><?php echo $selectedVibe === '' ? 'Playlist by mood' : e($vibeOptions[$selectedVibe]['label']) . ' playlist'; ?> • Music appears here when songs have been added in the database.</p>
-<<<<<<< HEAD
-=======
         <form class="list-search" method="get">
             <input type="hidden" name="mood" value="<?php echo e($selectedMood); ?>">
             <?php if ($selectedVibe !== ''): ?><input type="hidden" name="vibe" value="<?php echo e($selectedVibe); ?>"><?php endif; ?>
             <label for="song-search">Cari lagu</label>
             <div><input id="song-search" name="q" value="<?php echo e($search); ?>" placeholder="Cari judul, kategori, atau URL Spotify"><button type="submit">Cari</button></div>
         </form>
->>>>>>> a3bd38c (perbaikan alur dan penambahan halaman admin)
         <?php if (!$songs): ?>
             <div class="empty-state"><div style="font-size:32px;margin-bottom:8px">♫ ✧</div><strong>No tracks in this selection yet.</strong><br>The playlist needs songs with valid Spotify embed URLs in the <code>songs</code> table.<?php if ($selectedVibe !== ''): ?> <a style="color:#79509d;text-decoration:underline" href="vibe.php?mood=<?php echo e($selectedMood); ?>">See all songs for this mood</a>.<?php endif; ?></div>
         <?php else: ?>
             <div class="media-grid">
                 <?php foreach ($songs as $song): ?>
                     <article class="media-card">
-<<<<<<< HEAD
-                        <?php if ((string) $song['album_art'] !== ''): ?><img class="media-cover" src="<?php echo e((string) $song['album_art']); ?>" alt="Cover <?php echo e((string) $song['title']); ?>" loading="lazy"><?php else: ?><div class="media-cover" role="img" aria-label="Illustrated music cover"></div><?php endif; ?>
-=======
->>>>>>> a3bd38c (perbaikan alur dan penambahan halaman admin)
                         <div class="media-body">
                             <?php $spotifyUrl = spotifyEmbedUrl((string) ($song['spotify_embed_url'] ?? '')); ?>
                             <?php if ($spotifyUrl !== null): ?><iframe class="spotify-player" src="<?php echo e($spotifyUrl); ?>" title="Spotify player <?php echo e((string) $song['title']); ?>" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe><?php else: ?><p class="subcopy">Spotify player belum tersedia untuk lagu ini.</p><?php endif; ?>

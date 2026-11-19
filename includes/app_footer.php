@@ -56,11 +56,7 @@ topbarToggle.addEventListener("click",toggleSidebar);
 mobileShade.addEventListener("click",closeMobileNav);
 window.addEventListener("resize",()=>{if(!isMobileNav())closeMobileNav();});
 document.addEventListener("keydown",event=>{if(event.key==="Escape")closeMobileNav();});
-<<<<<<< HEAD
-const appDialog=document.getElementById("app-dialog"),dialogMessage=document.getElementById("app-dialog-message"),dialogTitle=document.getElementById("app-dialog-title"),dialogCancel=document.getElementById("app-dialog-cancel"),dialogConfirm=document.getElementById("app-dialog-confirm");
-=======
 const appDialog=document.getElementById("app-dialog"),dialogIcon=document.getElementById("app-dialog-icon"),dialogMessage=document.getElementById("app-dialog-message"),dialogTitle=document.getElementById("app-dialog-title"),dialogCancel=document.getElementById("app-dialog-cancel"),dialogConfirm=document.getElementById("app-dialog-confirm");
->>>>>>> a3bd38c (perbaikan alur dan penambahan halaman admin)
 let pendingForm=null;
 const setDialogIcon=(iconName,isWarning)=>{dialogIcon.innerHTML=feather.icons[iconName].toSvg();dialogIcon.classList.toggle("warning",isWarning);};
 const closeAppDialog=()=>{appDialog.classList.remove("open");document.body.classList.remove("dialog-open");pendingForm=null;};
