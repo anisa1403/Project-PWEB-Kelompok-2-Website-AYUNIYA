@@ -1,2 +1,3 @@
-/.fix_spotify
-/.schema.sql
+database/schema.sql
+*.sql
+config/database.php
